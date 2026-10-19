@@ -191,26 +191,45 @@ for minutes in [0, 2, 4, 6, 8]:
 **Diskusikan:**
 
 - Bandingkan `b0` dan `b1` dari eksperimen B dengan angka yang diberikan dalam eksperimen A.
+
 	Berdasarkan perhitungan kode di atas, nilai koefisien regresi linear langsung pada ESP32 (Eksperimen B) adalah:
+	
 • Intercept (\(b_{0}\)): 28.0222
+
 • Slope (\(b_{1}\)): 1.6667
+
 Silakan bandingkan nilai ini dengan angka yang Anda masukkan secara manual pada Eksperimen A. Jika Eksperimen A menggunakan data acuan yang sama (misalnya hasil analisis dari Excel atau Python di PC), nilainya akan sangat mirip atau mendekati identik.
+
 - Mengapa hasilnya tidak harus identik?
+
 	Ada beberapa alasan teknis mengapa hasil perhitungan di ESP32 bisa sedikit berbeda dari perangkat atau aplikasi lain (seperti Excel, MATLAB, atau Python di PC):
+	
 • Presisi Floating-Point: ESP32 menjalankan MicroPython yang umumnya menggunakan presisi data float 32-bit (single precision). Sementara itu, PC atau software statistik di laptop menggunakan float 64-bit (double precision). Perbedaan ini menyebabkan akumulasi pembulatan kecil pada operasi penjumlahan dan pembagian yang panjang.
+
 • Algoritma Internal: Aplikasi seperti Excel menggunakan pustaka optimasi numerik tingkat lanjut untuk meminimalkan round-off error (galat pembulatan), sedangkan kode di atas menggunakan rumus OLS (Ordinary Least Squares) standar secara langsung.
+
 • Perbedaan Dataset: Jika pada Eksperimen A Anda menggunakan data yang diambil langsung secara real-time dari sensor (bukan hardcoded data seperti di atas), maka variasi nilai lingkungan pasti akan membuat hasil perhitungan \(b_{0}\) dan \(b_{1}\) berbeda.
 
 - Pada kode ini, bagian manakah yang merupakan **training** dan bagian manakah yang merupakan **inference**?
+
 	Dalam siklus pengembangan Machine Learning, kode Anda terbagi menjadi dua proses utama:
+	
 • Proses Training (Pelatihan):
+
 Terletak pada fungsi fit_linear_regression(data) dan baris pemanggilannya:python
+
 b0, b1 = fit_linear_regression(train_data)
+
 Gunakan kode dengan hati-hati.
+
 Alasan: Di bagian ini, ESP32 membaca seluruh data historis (train_data) dan melakukan perhitungan matematika (OLS) untuk mencari dan menemukan parameter model terbaik, yaitu nilai koefisien b0 (intercept) dan b1 (slope).
+
 • Proses Inference (Prediksi):
+
 Terletak pada fungsi predict(x, b0, b1) dan loop pemanggilannya:python
+
 for minutes in [0, 2, 4, 6, 8]:
+
     prediction = predict(minutes, b0, b1)
 
 Alasan: Di bagian ini, model tidak lagi belajar. Model langsung menggunakan parameter b0 dan b1 yang sudah matang untuk menghitung prediksi keluaran (suhu) berdasarkan input baru (waktu/menit).
@@ -268,28 +287,43 @@ MAE test: 0.0889 C
 1. Catatan Koefisien Model dan Hasil Testing
 
 Berdasarkan rumus prediksi \(y = b_0 + b_1 \cdot x\) dengan koefisien dari eksperimen sebelumnya (\(b_0 = 28.0222\) dan \(b_1 = 1.6667\)), berikut adalah rangkuman performa model pada data pengujian:
+
 • Koefisien Model:
+
 	• Intercept (\(b_{0}\)): 28.0222
+	
 	• Slope (\(b_{1}\)): 1.6667
+	
 • Nilai Prediksi Tiap Titik Testing:
+
 	• Waktu 1.5 menit: Prediksi 30.52 °C (Aktual: 30.6 °C)
+	
 	• Waktu 3.5 menit: Prediksi 33.86 °C (Aktual: 33.9 °C)
+	
 	• Waktu 5.5 menit: Prediksi 37.19 °C (Aktual: 37.4 °C)
+	
 	• Waktu 7.5 menit: Prediksi 40.52 °C (Aktual: 40.5 °C)
+	
 • Mean Absolute Error (MAE):
+
 	• Nilai MAE: 0.0889 °C
 
 2. Analisis Performa Model
 
 • Akurasi Tinggi: Selisih terbesar (Abs error) hanya terjadi pada menit ke-5.5, yaitu sebesar 0.21 °C.
+
 • Prediksi Stabil: Pada menit ke-7.5, model hampir sempurna dengan galat hanya 0.02 °C.
+
 • Kesimpulan: Model regresi ini sangat konsisten dalam memprediksi kenaikan suhu berdasarkan waktu testing yang diberikan.
 
 3. Makna Satuan °C pada MAE
 
 Satuan °C pada MAE memiliki makna yang sangat penting dalam interpretasi hasil data:
+
 • Searah dengan Variabel Target: MAE mengukur rata-rata absolut dari kesalahan prediksi. Karena variabel yang diprediksi adalah suhu (dalam satuan °C), maka nilai kesalahan tersebut juga otomatis bersatuan °C.
+
 • Representasi Fisik yang Nyata: Nilai MAE sebesar 0.0889 °C berarti, secara rata-rata, estimasi atau tebakan suhu oleh ESP32 meleset sekitar 0.0889 derajat Celsius (bisa lebih tinggi atau lebih rendah) dari suhu asli yang terukur.
+
 • Lebih Mudah Dipahami: Berbeda dengan RMSE (Root Mean Squared Error) yang terkadang membesarkan nilai galat secara kuadratik, MAE dengan satuan °C murni ini memberikan gambaran langsung kepada manusia mengenai tingkat ketepatan alat ukur atau model secara riil.
 
 
@@ -446,4 +480,5 @@ Kumpulkan laporan 1–2 halaman yang memuat:
 - [ ] Mahasiswa membandingkan hasil tiga skenario dataset.
 
 ---
+
 
